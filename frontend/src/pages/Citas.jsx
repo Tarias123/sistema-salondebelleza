@@ -4,16 +4,19 @@ import Swal from 'sweetalert2';
 import api from '../services/api';
 import { pagosService } from '../services/pagosService';
 import { ConfigContext } from '../context/ConfigContext';
+import { AuthContext } from '../context/AuthContext';
 import ExportButtons from '../components/ExportButtons';
 
 function Citas() {
     const { config } = useContext(ConfigContext);
+    const { user } = useContext(AuthContext);
     const [citas, setCitas] = useState([]);
     const [clientes, setClientes] = useState([]);
     const [servicios, setServicios] = useState([]);
+    const [usuarios, setUsuarios] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const [formData, setFormData] = useState({ id: null, cliente_id: '', servicio_id: '', usuario_id: '1', fecha_hora: '', estado: '' }); // usuario_id 1 is the default admin we created
+    const [formData, setFormData] = useState({ id: null, cliente_id: '', servicio_id: '', usuario_id: user?.id, fecha_hora: '', estado: 'pendiente' });
 
     // Estado para pagos parciales (abonos)
     const [showAbonoModal, setShowAbonoModal] = useState(false);
@@ -23,14 +26,16 @@ function Citas() {
 
     const fetchData = async () => {
         try {
-            const [citasRes, clientesRes, servsRes] = await Promise.all([
+            const [citasRes, clientesRes, servsRes, usuariosRes] = await Promise.all([
                 api.get('/citas'),
                 api.get('/clientes'),
-                api.get('/servicios')
+                api.get('/servicios'),
+                api.get('/usuarios')
             ]);
             setCitas(citasRes.data);
             setClientes(clientesRes.data);
             setServicios(servsRes.data);
+            setUsuarios(usuariosRes.data.filter(u => u.rol === 'estilista' || u.rol === 'recepcionista'));
         } catch (error) {
             console.error('Error fetching citas data:', error);
         }
@@ -51,7 +56,7 @@ function Citas() {
                 Swal.fire({ icon: 'success', title: 'Agendado', text: 'Cita reservada correctamente.', timer: 1500, showConfirmButton: false });
             }
             setShowModal(false);
-            setFormData({ id: null, cliente_id: '', servicio_id: '', usuario_id: '1', fecha_hora: '', estado: '' });
+            setFormData({ id: null, cliente_id: '', servicio_id: '', usuario_id: user?.id, fecha_hora: '', estado: 'pendiente' });
             setIsEditing(false);
             fetchData();
         } catch (error) {
@@ -179,7 +184,7 @@ function Citas() {
                     <button
                         onClick={() => {
                             setIsEditing(false);
-                            setFormData({ id: null, cliente_id: '', servicio_id: '', usuario_id: '1', fecha_hora: '', estado: '' });
+                            setFormData({ id: null, cliente_id: '', servicio_id: '', usuario_id: user?.id, fecha_hora: '', estado: 'pendiente' });
                             setShowModal(true);
                         }}
                         className="flex items-center space-x-2 px-6 py-2.5 rounded-full text-white font-semibold shadow-md transition-all hover:scale-105"
@@ -281,6 +286,23 @@ function Citas() {
                                 >
                                     <option value="" disabled>Seleccionar un servicio...</option>
                                     {servicios.map(s => <option key={s.id} value={s.id}>{s.nombre} - {config?.simbolo_moneda || '$'}{parseFloat(s.precio)} ({s.duracion_minutos}m)</option>)}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1"><FaUser className="text-gray-400" /> Estilista</label>
+                                <select
+                                    required
+                                    value={formData.usuario_id || ''}
+                                    onChange={e => setFormData({ ...formData, usuario_id: e.target.value })}
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#a42ca1] focus:border-transparent outline-none bg-gray-50 text-gray-800"
+                                >
+                                    <option value="" disabled>Seleccionar un estilista...</option>
+                                    {usuarios.map(u => (
+                                        <option key={u.id} value={u.id}>
+                                            {u.nombre} ({u.rol})
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
 

@@ -52,7 +52,6 @@ function Citas() {
                 await api.put(`/citas/${formData.id}`, formData);
                 Swal.fire({ icon: 'success', title: 'Actualizado', text: 'Cita actualizada correctamente.', timer: 1500, showConfirmButton: false });
             } else {
-                console.log('[DEBUG] formData enviado a POST /citas:', formData);
                 await api.post('/citas', formData);
                 Swal.fire({ icon: 'success', title: 'Agendado', text: 'Cita reservada correctamente.', timer: 1500, showConfirmButton: false });
             }

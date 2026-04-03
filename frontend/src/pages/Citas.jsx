@@ -16,7 +16,7 @@ function Citas() {
     const [usuarios, setUsuarios] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const [formData, setFormData] = useState({ id: null, cliente_id: '', servicio_id: '', usuario_id: user?.id, fecha_hora: '', estado: '' });
+    const [formData, setFormData] = useState({ id: null, cliente_id: '', servicio_id: '', usuario_id: user?.id, fecha_hora: '', estado: 'pendiente' });
 
     // Estado para pagos parciales (abonos)
     const [showAbonoModal, setShowAbonoModal] = useState(false);
@@ -52,11 +52,12 @@ function Citas() {
                 await api.put(`/citas/${formData.id}`, formData);
                 Swal.fire({ icon: 'success', title: 'Actualizado', text: 'Cita actualizada correctamente.', timer: 1500, showConfirmButton: false });
             } else {
+                console.log('[DEBUG] formData enviado a POST /citas:', formData);
                 await api.post('/citas', formData);
                 Swal.fire({ icon: 'success', title: 'Agendado', text: 'Cita reservada correctamente.', timer: 1500, showConfirmButton: false });
             }
             setShowModal(false);
-            setFormData({ id: null, cliente_id: '', servicio_id: '', usuario_id: user?.id, fecha_hora: '', estado: '' });
+            setFormData({ id: null, cliente_id: '', servicio_id: '', usuario_id: user?.id, fecha_hora: '', estado: 'pendiente' });
             setIsEditing(false);
             fetchData();
         } catch (error) {
@@ -184,7 +185,7 @@ function Citas() {
                     <button
                         onClick={() => {
                             setIsEditing(false);
-                            setFormData({ id: null, cliente_id: '', servicio_id: '', usuario_id: user?.id, fecha_hora: '', estado: '' });
+                            setFormData({ id: null, cliente_id: '', servicio_id: '', usuario_id: user?.id, fecha_hora: '', estado: 'pendiente' });
                             setShowModal(true);
                         }}
                         className="flex items-center space-x-2 px-6 py-2.5 rounded-full text-white font-semibold shadow-md transition-all hover:scale-105"

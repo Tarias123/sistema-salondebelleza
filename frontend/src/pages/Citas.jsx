@@ -4,16 +4,18 @@ import Swal from 'sweetalert2';
 import api from '../services/api';
 import { pagosService } from '../services/pagosService';
 import { ConfigContext } from '../context/ConfigContext';
+import { AuthContext } from '../context/AuthContext';
 import ExportButtons from '../components/ExportButtons';
 
 function Citas() {
     const { config } = useContext(ConfigContext);
+    const { user } = useContext(AuthContext);
     const [citas, setCitas] = useState([]);
     const [clientes, setClientes] = useState([]);
     const [servicios, setServicios] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const [formData, setFormData] = useState({ id: null, cliente_id: '', servicio_id: '', usuario_id: '1', fecha_hora: '', estado: '' }); // usuario_id 1 is the default admin we created
+    const [formData, setFormData] = useState({ id: null, cliente_id: '', servicio_id: '', usuario_id: user?.id, fecha_hora: '', estado: '' }); // usuario_id 1 is the default admin we created
 
     // Estado para pagos parciales (abonos)
     const [showAbonoModal, setShowAbonoModal] = useState(false);
@@ -51,7 +53,7 @@ function Citas() {
                 Swal.fire({ icon: 'success', title: 'Agendado', text: 'Cita reservada correctamente.', timer: 1500, showConfirmButton: false });
             }
             setShowModal(false);
-            setFormData({ id: null, cliente_id: '', servicio_id: '', usuario_id: '1', fecha_hora: '', estado: '' });
+            setFormData({ id: null, cliente_id: '', servicio_id: '', usuario_id: user?.id, fecha_hora: '', estado: '' });
             setIsEditing(false);
             fetchData();
         } catch (error) {
@@ -179,7 +181,7 @@ function Citas() {
                     <button
                         onClick={() => {
                             setIsEditing(false);
-                            setFormData({ id: null, cliente_id: '', servicio_id: '', usuario_id: '1', fecha_hora: '', estado: '' });
+                            setFormData({ id: null, cliente_id: '', servicio_id: '', usuario_id: user?.id, fecha_hora: '', estado: '' });
                             setShowModal(true);
                         }}
                         className="flex items-center space-x-2 px-6 py-2.5 rounded-full text-white font-semibold shadow-md transition-all hover:scale-105"
